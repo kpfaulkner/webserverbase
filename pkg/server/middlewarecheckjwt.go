@@ -24,7 +24,7 @@ func (s *Server) checkJWT(next http.HandlerFunc) http.HandlerFunc {
 						return nil, fmt.Errorf("Error with JWT")
 					}
 					// get secret key from SOMEWHERE... will hardcode for now.
-					return []byte("mysecretkey"), nil
+					return []byte( s.jwtKey), nil
 				})
 
 				if err != nil {

@@ -6,15 +6,17 @@ import (
 )
 
 type Server struct {
-	//router *http.ServeMux
+
+	// key used for JWT validation.
+	jwtKey string
 	router *mux.Router
 
 	serverMiddleWare []func(http.Handler) http.Handler
 }
 
-func NewServer() *Server {
+func NewServer(jwtKey string) *Server {
 	s := Server{}
-	//s.router = http.NewServeMux()
+	s.jwtKey = jwtKey
 	s.router = mux.NewRouter()
 	s.routes()
 
@@ -47,7 +49,7 @@ func (s *Server) Use(middleware func(http.Handler) http.Handler) error {
 
 // GetServerWithMiddleware returns the server with middleware applied.
 func (s *Server) GetServerWithMiddleware() http.Handler {
-	server := NewServer()
+	server := NewServer(s.jwtKey)
 	var wrappedServer http.Handler
 	wrappedServer = server
 	for _, mw := range s.serverMiddleWare {
