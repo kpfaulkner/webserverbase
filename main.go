@@ -27,11 +27,12 @@ func main() {
 	useTLS := flag.Bool("usetls", false, "Listen for TLS traffic")
   certCRTPath := flag.String("crtpath", "", "Path to Certificate CRT file")
 	certKeyPath := flag.String("keypath", "", "Path to Certificate Key file")
+	jwtSecret := flag.String("jwtSecret", server.DefaultJWTSecret, "JWT Secret")
 	port := flag.String("port", "8080", "Port for server to listen on")
 
 	InitializeLogging("server.log")
-	svr := server.NewServer()
-	//svr.Use(server.CheckJWT())
+
+	svr := server.NewServer(*jwtSecret)
 	svr.Use(server.WithLogging())
 
 	var err error
