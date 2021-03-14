@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/kpfaulkner/webserverbase/pkg/server"
 	log "github.com/sirupsen/logrus"
@@ -23,11 +24,25 @@ func InitializeLogging(logFile string) {
 func main() {
 	fmt.Printf("so it begins...\n")
 
-	InitializeLogging("test.log")
+	useTLS := flag.Bool("usetls", false, "Listen for TLS traffic")
+  certCRTPath := flag.String("crtpath", "", "Path to Certificate CRT file")
+	certKeyPath := flag.String("keypath", "", "Path to Certificate Key file")
+	port := flag.String("port", "8080", "Port for server to listen on")
+
+	InitializeLogging("server.log")
 	svr := server.NewServer()
 	//svr.Use(server.CheckJWT())
 	svr.Use(server.WithLogging())
 
-	err := http.ListenAndServe(":8081", svr.GetServerWithMiddleware())
+	var err error
+	portStr := fmt.Sprintf(":%s", *port)
+	if useTLS != nil && *useTLS == true  &&
+		certCRTPath != nil && *certCRTPath != "" &&
+		certKeyPath != nil && *certKeyPath != "" {
+		err = http.ListenAndServeTLS(portStr, *certCRTPath, *certKeyPath, svr.GetServerWithMiddleware())
+	} else {
+		err = http.ListenAndServe(portStr, svr.GetServerWithMiddleware())
+	}
+
 	fmt.Printf("err is %s\n", err.Error())
 }
